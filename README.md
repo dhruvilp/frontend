@@ -7,7 +7,7 @@ Yahh, Yerr, Yeet, etc.
 
 **A working version of the front end can be viewed [here](http://hackru-frontend.s3-website-us-west-2.amazonaws.com/).**
 
-### We are writing wiki documentation which will supercede this long README file.  Stay tuned.
+### We are writing wiki documentation which will contain all the info that used to be on this README.  Stay tuned.
 
 
 ### Master branch build status:

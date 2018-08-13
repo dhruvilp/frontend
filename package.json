@@ -62,8 +62,8 @@
       "<rootDir>/config/polyfills.js"
     ],
     "testMatch": [
-      "<rootDir>/src/**/__tests__/**/*.{js,jsx,mjs}",
-      "<rootDir>/src/**/?(*.)(spec|test).{js,jsx,mjs}"
+      "<rootDir>/src/**/__tests__/*.{js,jsx,mjs}",
+      "<rootDir>/src/?(*.)(spec|test).{js,jsx,mjs}"
     ],
     "testEnvironment": "node",
     "testURL": "http://localhost",
@@ -94,8 +94,11 @@
     ]
   },
   "devDependencies": {
+    "enzyme": "^3.4.1",
     "eslint": "^5.0.1",
     "eslint-loader": "^2.0.0",
-    "eslint-plugin-react": "^7.10.0"
+    "eslint-plugin-react": "^7.10.0",
+    "fetch-mock": "^6.5.2",
+    "redux-mock-store": "^1.5.3"
   }
 }
