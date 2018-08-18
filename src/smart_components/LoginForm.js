@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 
 import * as loginActions from 'action_creators/LoginActions';
-
+import { checkURL } from 'action_creators/PageActions';
 
 class LoginForm extends React.Component {
 
@@ -22,7 +22,8 @@ class LoginForm extends React.Component {
 
 
   componentDidMount() {
-    this.props.checkURL();
+    const urlParams = new URLSearchParams(window.location.search);
+    this.props.checkURL(urlParams);
   }
 
   changeEmail = (e) => {

@@ -22,6 +22,8 @@ describe('LoginActions', () => {
 
   //URL Params
 
+  //changeEmail
+  
   it('should dispatch an email change when asked', () => {
     
     const email = 'test@test.com';
@@ -36,6 +38,9 @@ describe('LoginActions', () => {
     expect(store.getActions()).toEqual(expectedActions);
   });
 
+
+  //changePassword
+  
   it('should dispatch a password change when asked', () => {
 
     const password = 'yerryeetyahh';
@@ -49,5 +54,10 @@ describe('LoginActions', () => {
     store.dispatch(actions.changePassword(password));
     expect(store.getActions()).toEqual(expectedActions);
   });
+
+  //resetPassword
+
+  it('')
+
 
 });

@@ -8,67 +8,29 @@ import { loginUser } from 'action_creators/ViewActions';
 import resURLS from 'resources/resURLS';
 
 
-export const checkURL = () => (
+export const loginUser = () => (
+  (dispatch) => {
+    
+    //set the login status to true
+    dispatch({
+      
+      type: VIEW_CONTROL.SET_LOGIN_STATUS,
+      loggedIn: true
+    });
+    
+  }
+);
+
+
+export const loginAlert = (msg) => (
   (dispatch) => {
 
-    let urlParams = new URLSearchParams(window.location.search);
-    if(urlParams.has('error')) {
-      
-      dispatch({
-        type: LOGIN_MNGMNT.SET_ERROR, 
-        errorMessage: urlParams.get('error')
-      });
-    } else {
-      
-      if(urlParams.has('magiclink')) {
-      
-        const magicLink = urlParams.get('magiclink');
-        if(magicLink.startsWith('forgot-')) {
+    //set the flash to msg
+    dispatch({
 
-          //user forgot password and is attempting to reset it
-          dispatch({
-            type: LOGIN_MNGMNT.SET_ERROR,
-            errorMessage: 'You have a magic link! Please enter your email and then your new password.'
-          });
-          dispatch({
-            type: LOGIN_MNGMNT.SET_MAGIC_LINK, 
-            magicLink: magicLink
-          });
-          dispatch({
-            type: LOGIN_MNGMNT.HAS_FORGOTTEN_PASSWORD,
-            forgottenPassword: true
-          });
-
-        } else {
-          /* NOT NEEDED
-          //user is logging in after going through mlh system
-          dispatch({
-            type: LOGIN_MNGMNT.SET_ERROR, 
-            errorMessage: 'You have a magic link! Please log in to apply it.'
-          });
-          dispatch({
-            type: LOGIN_MNGMNT.SET_MAGIC_LINK, 
-            magicLnk: magicLink
-          });
-          */
-
-          dispatch(showCaughtError('MLH-assigned magic links are not currently supported!'));
-        }
-      } 
-    
-      //grab the auth data from the cookie
-      let authdata = dispatch(getCookie('authdata'));
-      
-      if(typeof(authdata) === 'string') {
-
-        authdata = JSON.parse(authdata);
-        if(authdata && Date.parse(authdata.auth.valid_until) > Date.now()) {
-
-          //still valid
-          dispatch(loginUser({body: JSON.stringify(authdata)}));
-        }
-      }
-    }
+      type: USER_DATA.SET_FLASH,
+      flash: msg
+    });
   }
 );
 
@@ -343,5 +305,24 @@ const showCaughtError = (mes) => (
       type: LOGIN_MNGMNT.SET_ERROR,
       errorMessage: 'An error occurred:\n' + mes
     });
+  }
+);
+
+
+export const showError = (mes) => (
+  (dispatch) => {
+    console.log('error logged: ' + mes);
+    const eMes = 'An error occurred: ' + mes;
+    dispatch(notifyUser(eMes));
+  }
+);
+
+
+export const notifyUser = (mes) => (
+  (dispatch) => {
+    dispatch({
+      type: LOGIN_MNGMNT.SET_ERROR,
+      errorMessage: mes
+    });  
   }
 );
