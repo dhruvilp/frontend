@@ -1,7 +1,6 @@
 //LoginActions.js
-import { getCookie } from 'redux-cookie';
 
-import { LOGIN_MNGMNT } from 'action_creators/ActionTypes';
+import { LOGIN_MNGMNT, VIEW_CONTROL } from 'action_creators/ActionTypes';
 
 import { loginUser } from 'action_creators/ViewActions';
 

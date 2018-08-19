@@ -3,7 +3,6 @@
 import { getCookie, setCookie } from 'redux-cookie';
 
 import { LOGIN_MNGMNT } from 'action_creators/ActionTypes';
-import { showError, notifyUser } from 'action_creators/LoginActions';
 
 export const checkURL = (urlParams) => (
   (dispatch) => {
@@ -11,16 +10,16 @@ export const checkURL = (urlParams) => (
     if(!urlParams || !(typeof(urlParams) === 'string')) {
 
       //not readable
-      dispatch(showError('unreadable url parameters'));
+      return 'unreadable url parameters';
     } else if(urlParams.has('error')) {
 
       //has error
       const errMes = urlParams.get('error');
-      dispatch(showError(errMes));
+      return errMes;
     } else {
 
-      //successful
-      dispatch(confirmLink(urlParams));
+      //is valid
+      return 'valid';
     }
   } 
 );
