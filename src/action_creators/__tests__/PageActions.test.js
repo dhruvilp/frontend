@@ -158,4 +158,6 @@ describe('PageActions', () => {
 
     expect(actions.checkCookieValid(unexpiredCookie)).toEqual(true);
   });
+
+
 });

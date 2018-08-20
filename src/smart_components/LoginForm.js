@@ -98,7 +98,7 @@ class LoginForm extends React.Component {
                 </div>
               </div>
               <div className="form-group row text-center"> {/*ERROR MESSAGE*/}
-                <h4 className="col-lg-10 offset-lg-1 text-lg badge badge-danger mb-4 mt-4" >{this.props.loginManager.errorMessage}</h4>
+                <h4 className="col-lg-10 offset-lg-1 text-lg badge badge-danger mb-4 mt-4" >{this.props.loginManager.message}</h4>
                 {this.props.loginManager.errorMessage && 
                     (!this.props.loginManager.magicLink || this.props.loginManager.forgottenPassword) &&
                     <div className="col-12">

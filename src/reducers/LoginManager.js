@@ -8,7 +8,7 @@ const initialState = {
   password: '',
   forgottenPassword: false, 
   magicLink: '',
-  errorMessage: ''
+  alertMessage: ''
 };
 
 const LoginManager = (state = initialState, action) => {
@@ -33,11 +33,13 @@ const LoginManager = (state = initialState, action) => {
         ...state,
         forgottenPassword: action.forgottenPassword
       };
-    case LOGIN_MNGMNT.SET_ERROR:
+    case LOGIN_MNGMNT.SET_ALERT:
       return {
         ...state, 
-        errorMessage: action.errorMessage
+        errorMessage: action.alertMessage
       };
+    case LOGIN_MNGMNT.RESET_REDUCER:
+      return initialState;
     default: 
       return state;
   }

@@ -49,7 +49,7 @@ describe('LoginActions', () => {
       password: password
     }];
 
-    const store = mockStore({ passord: '' });
+    const store = mockStore({ password: '' });
 
     store.dispatch(actions.changePassword(password));
     expect(store.getActions()).toEqual(expectedActions);
@@ -57,7 +57,7 @@ describe('LoginActions', () => {
 
   //resetPassword
 
-  it('')
+ 
 
 
 });

@@ -1,4 +1,7 @@
-//LoginActions.js
+/**
+ * @file LoginActions responsible for loginForm specific actions
+ * @author TresTres
+ */
 
 import { LOGIN_MNGMNT, VIEW_CONTROL } from 'action_creators/ActionTypes';
 
@@ -6,7 +9,9 @@ import { loginUser } from 'action_creators/ViewActions';
 
 import resURLS from 'resources/resURLS';
 
-
+/**
+ * marks a user as logged in
+ */
 export const loginUser = () => (
   (dispatch) => {
     
@@ -16,7 +21,26 @@ export const loginUser = () => (
       type: VIEW_CONTROL.SET_LOGIN_STATUS,
       loggedIn: true
     });
-    
+
+    //clear the login 
+    dispatch({
+      type: LOGIN_MNGMNT.RESET_REDUCER
+    });
+  } 
+);
+
+/**
+ * marks a user as logged out
+ */
+export const logoutUser = () => (
+  (dispatch) => {
+
+    //set the login status to false
+    dispatch({
+
+      type: VIEW_CONTROL.SET_LOGIN_STATUS,
+      loggedIn: false
+    });
   }
 );
 
