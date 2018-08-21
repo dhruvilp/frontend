@@ -7,7 +7,52 @@ import { LOGIN_MNGMNT, VIEW_CONTROL } from 'action_creators/ActionTypes';
 
 import { loginUser } from 'action_creators/ViewActions';
 
+
+import {validateResponse, validateEmail, validatePassword } from 'resources/validation';
 import resURLS from 'resources/resURLS';
+
+
+
+
+
+
+/**
+ * checks if LCS authorization was successful
+ * @param {Object} presumed LCS response
+ * @returns {Boolean} if successful authorizatoin
+ */
+const validateAuth = (data) => (
+  (dispatch) => {
+
+    if(validateResponse(data) === false) {
+
+      //not a valid response
+      dispatch(loginError('invalid response from LCS'));
+      return false;
+    } else {
+
+      //assume good response
+      if(data.status !== 200) {
+
+        //unsuccessful authorization, check the cause
+        
+        const errorMsgs = {
+          'invalid email,hash combo': 'Incorrect email or passsword.',
+          'Wrong Password': 'Incorrect password.'
+        }; 
+
+        //notify user
+        dispatch(loginError(errorMsgs[data.body]));
+        return false;
+      } else {
+
+        //success
+        return true;
+      }
+    }
+  }
+);
+
 
 /**
  * marks a user as logged in
@@ -44,36 +89,91 @@ export const logoutUser = () => (
   }
 );
 
+/**
+ * updates the store with an email for login attempt
+ * @param {String} specified email
+ * @returns {Boolean} if store update was succesful
+ */
+export const changeEmail = (email) => (
+  (dispatch) => {
 
+    if(validateEmail(email) === false) {
+
+      //validation fails
+      return false;
+    } else {
+
+      //validation worked, update store
+      dispatch({
+        type: LOGIN_MNGMNT.CHANGE_EMAIL,
+        email: email
+      });
+
+      return true;
+    }
+  }
+);
+
+/**
+ * updates the store with a password for a login attempt
+ * @param {String} specified password
+ * @returns {Boolean} if update was successful
+ */
+export const changePassword = (password) => (
+  (dispatch) => {
+
+    if(validatePassword(password) === false) {
+
+      //validation fails
+      return false;
+    } else {
+
+      //validation worked, update store
+      dispatch({
+        type: LOGIN_MNGMNT.CHANGE_PASSWORD,
+        password: password
+      });
+
+      return true;
+    }
+  }
+);
+
+
+/**
+ * sets an alert according to a message
+ * @param {String} the message to set
+ */
 export const loginAlert = (msg) => (
   (dispatch) => {
 
-    //set the flash to msg
+    //set the alert to msg
     dispatch({
 
-      type: USER_DATA.SET_FLASH,
-      flash: msg
+      type: LOGIN_MNGMNT.SET_ALERT,
+      alertMessage: msg
     });
   }
 );
 
-export const changeEmail = (email) => (
+/**
+ * sets an error alert according to a message
+ * @param {String} the error message to set
+ */
+export const loginError = (msg) => (
   (dispatch) => {
-    dispatch({
-      type: LOGIN_MNGMNT.CHANGE_EMAIL,
-      email: email
-    });
+    
+    //set the alert to the error message
+    const err = 'An error occurred: ' + msg;
+
+    console.log('error logged: ' + err);
+
+    //alert the user
+    dispatch(loginAlert(err));
   }
 );
 
-export const changePassword = (password) => (
-  (dispatch) => {
-    dispatch({
-      type: LOGIN_MNGMNT.CHANGE_PASSWORD,
-      password: password
-    });
-  }
-);
+
 
 export const resetPassword = (user) => (
   (dispatch) => { 
@@ -321,31 +421,5 @@ const loginPostFetch = (data) => (
 );
 
 
-const showCaughtError = (mes) => (
-  (dispatch) => {
-    console.log('error logged: ' + mes);
-    dispatch({
-      type: LOGIN_MNGMNT.SET_ERROR,
-      errorMessage: 'An error occurred:\n' + mes
-    });
-  }
-);
 
 
-export const showError = (mes) => (
-  (dispatch) => {
-    console.log('error logged: ' + mes);
-    const eMes = 'An error occurred: ' + mes;
-    dispatch(notifyUser(eMes));
-  }
-);
-
-
-export const notifyUser = (mes) => (
-  (dispatch) => {
-    dispatch({
-      type: LOGIN_MNGMNT.SET_ERROR,
-      errorMessage: mes
-    });  
-  }
-);
