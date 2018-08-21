@@ -8,18 +8,95 @@ import { LOGIN_MNGMNT, VIEW_CONTROL } from 'action_creators/ActionTypes';
 import { loginUser } from 'action_creators/ViewActions';
 
 
-import {validateResponse, validateEmail, validatePassword } from 'resources/validation';
+import { validateResponse, validateEmail, validatePassword, hasFields } from 'resources/validation';
+import { makePostBody } from 'resources/validation';
 import resURLS from 'resources/resURLS';
 
 
+/**
+ * attempts to login the specified user
+ * @param {Object} specified user
+ * @returns {Boolean} if the login was successful
+ */
+export const attemptLogin = (user) => (
+  (dispatch) => {
+     
+    if(!validateUser(user)) {
+       
+      //reject non-user
+      return false;
+    } else {
 
+      //check for unfilled fields
+      if(user.email === '' || user.password === '') {
 
+        //incomplete form
+        dispatch(loginAlert('Please fill out valid email and password ton continue.'));
+      } else {
 
+        //filled form, alert user
+        dispatch(loginAlert('Credentials submitted. Awaiting response...'));
+
+        //send to LCS to authorize
+        const body = {
+          email: user.email,
+          password: user.password
+        };
+
+        fetch(resURLS.lcsAuthURL, makePostBody(body))
+          .then(resp => resp.json())
+          .then(resp => {
+
+            //post-process
+            if(dispatch(validateAuth(resp)) === true) {
+
+              //successful, start login
+              dispatch(loginUser());
+            } else {
+              
+              //unsuccessful, ensure logout
+              dispatch(logoutUser());
+            }
+          })
+          .catch(err => {
+
+            //error
+            dispatch(loginError(err.toString()));
+          });
+      }
+    }
+  }
+);
+
+/**
+ * checks if a user object is valid
+ * @param {Object} presumed user
+ * @returns {Boolean} if the validation was successful
+ */
+const validateUser = (user) => {
+
+  if(typeof(user) !== 'object') {
+
+    //reject non-object
+    return false;
+  } else {
+        
+    const userFields = ['email', 'password'];
+    if(!hasFields(user, userFields)) {
+
+      //not a user object
+      return false;
+    } else {
+
+      return true;
+    }
+  }
+};
 
 /**
  * checks if LCS authorization was successful
  * @param {Object} presumed LCS response
- * @returns {Boolean} if successful authorizatoin
+ * @returns {Boolean} if successful authorization
  */
 const validateAuth = (data) => (
   (dispatch) => {
@@ -67,7 +144,7 @@ export const loginUser = () => (
       loggedIn: true
     });
 
-    //clear the login 
+    //clear the reducer 
     dispatch({
       type: LOGIN_MNGMNT.RESET_REDUCER
     });
@@ -86,6 +163,11 @@ export const logoutUser = () => (
       type: VIEW_CONTROL.SET_LOGIN_STATUS,
       loggedIn: false
     });
+
+    //clear the reducer?
+    dispatch({
+      type: LOGIN_MNGMNT.RESET_REDUCER
+    });
   }
 );
 
@@ -99,7 +181,11 @@ export const changeEmail = (email) => (
 
     if(validateEmail(email) === false) {
 
-      //validation fails
+      //validation fails, clear the email
+      dispatch({
+        type: LOGIN_MNGMNT.CHANGE_EMAIL,
+        email: ''
+      });
       return false;
     } else {
 
@@ -124,7 +210,11 @@ export const changePassword = (password) => (
 
     if(validatePassword(password) === false) {
 
-      //validation fails
+      //validation fails, clear the password
+      dispatch({
+        type: LOGIN_MNGMNT.CHANGE_PASSWORD,
+        password: ''
+      });
       return false;
     } else {
 
@@ -392,34 +482,6 @@ export const login = (user) => (
     }
   }
 );
-
-/*  NOT NEEDED
-export const mlhLogin = (user) => {
-  let redir = (user.magicLink && !(user.magicLink.startsWith('forgot-')))? resURLS.magicLinkRedirect + user.magicLink : '';
-  let href = resURLS.mlhRedirectURL + redir + resURLS.mlhResponseType;
-  window.open(href, '_self');
-};
-*/
-
-
-const loginPostFetch = (data) => (
-  (dispatch) => {
-    if(data.statusCode !== 200) {
-      //unsuccessful authorization, check the problem
-      const errorMsgs = {
-        'invalid email,hash combo': 'Incorrect email or passsword.',
-        'Wrong Password': 'Incorrect password.'
-      }; 
-      //console.log(errorMsgs[data.body]);
-      dispatch(showCaughtError(errorMsgs[data.body]));
-    } else {
-    
-      //successful authorization
-      dispatch(loginUser({body: data.body})); 
-    }
-  }
-);
-
 
 
 
