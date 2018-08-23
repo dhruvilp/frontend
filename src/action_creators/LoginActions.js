@@ -4,64 +4,79 @@
  */
 
 import { LOGIN_MNGMNT, VIEW_CONTROL } from 'action_creators/ActionTypes';
+import * as PageActions from 'action_creators/PageActions';
+import * as Utils from 'resources/Utils';
 
-import { loginUser } from 'action_creators/ViewActions';
-
-
-import { validateResponse, validateEmail, validatePassword, hasFields } from 'resources/validation';
-import { makePostBody } from 'resources/validation';
 import resURLS from 'resources/resURLS';
 
 
 /**
- * attempts to login the specified user
- * @param {Object} specified user
- * @returns {Boolean} if the login was successful
+ * attempts to create a new user in LCS from the one specified in an attempt
+ * @param {Object} specified attempt
+ * @returns {Boolean} if the creation was successful
  */
-export const attemptLogin = (user) => (
+export const attemptSignUp = (attempt) => (
   (dispatch) => {
-     
-    if(!validateUser(user)) {
-       
-      //reject non-user
+
+    if(!Utils.validateAttempt(attempt)) {
+      
+      //reject non-attempt
       return false;
     } else {
 
       //check for unfilled fields
-      if(user.email === '' || user.password === '') {
+      if(attempt.email === '' || attempt.password === '') {
 
         //incomplete form
-        dispatch(loginAlert('Please fill out valid email and password ton continue.'));
+        dispatch(loginAlert('Please fill out valid email and password.'));
+        return false;
       } else {
 
-        //filled form, alert user
-        dispatch(loginAlert('Credentials submitted. Awaiting response...'));
-
-        //send to LCS to authorize
+        //filled form, alert attempt
+        dispatch(loginAlert('New account info submitted.  Awaiting response...'));
+        
+        //send to LCS to create
         const body = {
-          email: user.email,
-          password: user.password
+          email: attempt.email,
+          password: attempt.password
         };
-
-        fetch(resURLS.lcsAuthURL, makePostBody(body))
+  
+        fetch(resURLS.lcsCreateURL, Utils.makePostBody(body))
           .then(resp => resp.json())
           .then(resp => {
 
             //post-process
-            if(dispatch(validateAuth(resp)) === true) {
+            if(!Utils.validateResponse(resp)) {
 
-              //successful, start login
-              dispatch(loginUser());
-            } else {
-              
-              //unsuccessful, ensure logout
-              dispatch(logoutUser());
+              //non-response
+              dispatch(loginResponseError());
+              return false;
             }
+            if(resp.ok){
+
+              //successful, proceed to log in
+              //save authorization data 
+              const data = resp.body;
+
+              //this could fail, but idk if user needs to know this
+              dispatch(PageActions.saveCookie(data, 'authdata'));
+              
+              //log in
+              dispatch(loginUser());
+
+              return true;
+            } else {
+
+              //unsuccessful
+              dispatch(determineIssue(resp));
+              return false;
+            }  
           })
           .catch(err => {
 
             //error
-            dispatch(loginError(err.toString()));
+            dispatch(loginError(err.toString));
+            return false;
           });
       }
     }
@@ -69,67 +84,220 @@ export const attemptLogin = (user) => (
 );
 
 /**
- * checks if a user object is valid
- * @param {Object} presumed user
- * @returns {Boolean} if the validation was successful
+ * attempts to login the attempt-specified user through LCS
+ * @param {Object} specified attempt
+ * @returns {Boolean} if the login was successful
  */
-const validateUser = (user) => {
-
-  if(typeof(user) !== 'object') {
-
-    //reject non-object
-    return false;
-  } else {
-        
-    const userFields = ['email', 'password'];
-    if(!hasFields(user, userFields)) {
-
-      //not a user object
-      return false;
-    } else {
-
-      return true;
-    }
-  }
-};
-
-/**
- * checks if LCS authorization was successful
- * @param {Object} presumed LCS response
- * @returns {Boolean} if successful authorization
- */
-const validateAuth = (data) => (
+export const attemptLogin = (attempt) => (
   (dispatch) => {
-
-    if(validateResponse(data) === false) {
-
-      //not a valid response
-      dispatch(loginError('invalid response from LCS'));
+     
+    if(!Utils.validateAttempt(attempt)) {
+       
+      //reject non-attempt
       return false;
     } else {
 
-      //assume good response
-      if(data.status !== 200) {
+      //check for unfilled fields
+      if(attempt.email === '' || attempt.password === '') {
 
-        //unsuccessful authorization, check the cause
-        
-        const errorMsgs = {
-          'invalid email,hash combo': 'Incorrect email or passsword.',
-          'Wrong Password': 'Incorrect password.'
-        }; 
-
-        //notify user
-        dispatch(loginError(errorMsgs[data.body]));
+        //incomplete form
+        dispatch(loginAlert('Please fill out valid email and password.'));
         return false;
       } else {
 
-        //success
-        return true;
+        //filled form, alert attempt
+        dispatch(loginAlert('Credentials submitted. Awaiting response...'));
+
+        //send to LCS to authorize
+        const body = {
+          email: attempt.email,
+          password: attempt.password
+        };
+
+        fetch(resURLS.lcsAuthURL, Utils.makePostBody(body))
+          .then(resp => resp.json())
+          .then(resp => {
+
+            //post-process
+            if(!Utils.validateResponse(resp)) {
+
+              //non-response
+              dispatch(loginResponseError());
+              return false;
+            }
+            if(resp.ok){
+
+              //successful, save authorization data 
+              const data = resp.body;
+
+              //this could fail, but idk if user needs to know this
+              dispatch(PageActions.saveCookie(data, 'authdata'));
+              
+              //log in
+              dispatch(loginUser());
+              return true;
+            } else {
+              
+              //unsuccessful, ensure logout
+              dispatch(determineIssue(resp));
+              dispatch(PageActions.deleteCookie('authdata'));
+              dispatch(logoutUser());
+              return false;
+            }
+          })
+          .catch(err => {
+
+            //error
+            dispatch(loginError(err.toString()));
+            return false;
+          });
       }
     }
   }
 );
 
+/**
+ * attempts to send a magic link to LCS to consume from an attempt so password could be reset
+ * @param {Object} the specified attempt
+ * @returns {Boolean} if the link was consumed
+ */
+export const consumeLink = (attempt) => (
+  (dispatch) => {
+    if(dispatch(Utils.validateAttempt(attempt)) === false) {
+
+      //reject non-attempt
+      return false;
+    }
+    
+    if(attempt.email === '' || attempt.password === '') {
+      
+      //form not filled out
+      dispatch(loginAlert('Please fill in a valid email and a new password.'));
+      return false;
+    }
+    
+    //notify attempt of application
+    dispatch(loginAlert('Sending info for a password reset...'));
+    
+    const body = {
+      email: attempt.email,
+      forgot: attempt.forgottenPassword,
+      password: attempt.password,
+      link: attempt.magicLink
+    };
+
+    fetch(resURLS.lcsConsumeURL, Utils.makePostBody(body))
+      .then(resp => resp.json())
+      .then(resp => {
+
+        //post-process
+        if(!Utils.validateResponse(resp)) {
+
+          //non-response
+          dispatch(loginResponseError());
+          return false;
+        }
+        if(resp.ok){
+
+          //successful
+          //notify attempt
+          dispatch(loginAlert('Password updated.  Click login to use the new password.'));
+          //remove the magic link from the store
+          dispatch({
+            type: LOGIN_MNGMNT.SET_MAGIC_LINK, 
+            magicLink: ''
+          });
+          //attempt has no longer forgotten the password
+          dispatch({
+            type: LOGIN_MNGMNT.HAS_FORGOTTEN_PASSWORD,
+            forgottenPassword: false
+          });
+          return true;
+        } else {
+        
+          //unsuccessful
+          dispatch(determineIssue(resp));
+          //don't remove link or forgottenPassword in case they will try again
+          return false;
+        }
+      })
+      .catch(err => {
+
+        //error
+        dispatch(loginError(err.toString()));
+        return false;
+      });
+  }
+);
+
+/**
+ * attempts to request a magic link from LCS for an attempt to reset theuser password
+ * @param {Object} the specified attempt
+ * @returns {Boolean} if the magic link was sent
+ */
+export const requestLink = (attempt) => (
+  (dispatch) => {
+
+    if(dispatch(Utils.validateAttempt(attempt)) === false) {
+
+      //reject non-attempt
+      return false;
+    }
+    if(attempt.email === '') {
+      
+      //email not filled out
+      dispatch(loginAlert('Please fill in a vaild email.'));
+      return false;
+    }
+
+    //a request means the user has forgotten their password
+    dispatch({
+      type: LOGIN_MNGMNT.HAS_FORGOTTEN_PASSWORD,
+      forgottenPassword: true
+    });
+
+    //notify attempt that a requst is being made
+    dispatch(loginAlert('Email submitted. Requesting a magic link...'));
+
+    const body = {
+      email: attempt.email,
+      forgot: attempt.forgottenPassword
+    };
+
+    fetch(resURLS.lcsMagicURL, Utils.makePostBody(body))
+      .then(resp => resp.json())
+      .then(resp => {
+
+        //post-process
+        if(!Utils.validateResponse(resp)) {
+
+          //non-response
+          dispatch(loginResponseError());
+          return false;
+        }
+        if(resp.ok){
+
+          //successsful
+          const notif = resp.body;
+
+          //notify user to check email
+          dispatch(loginAlert(notif));
+          return true;
+        } else {
+
+          //unsuccessful
+          dispatch(determineIssue(resp));
+          return false;
+        }
+      })
+      .catch(err => {
+
+        //error
+        dispatch(loginError(err.toString()));
+        return false;
+      });
+  }
+);
 
 /**
  * marks a user as logged in
@@ -179,7 +347,7 @@ export const logoutUser = () => (
 export const changeEmail = (email) => (
   (dispatch) => {
 
-    if(validateEmail(email) === false) {
+    if(Utils.validateEmail(email) === false) {
 
       //validation fails, clear the email
       dispatch({
@@ -208,7 +376,7 @@ export const changeEmail = (email) => (
 export const changePassword = (password) => (
   (dispatch) => {
 
-    if(validatePassword(password) === false) {
+    if(Utils.validatePassword(password) === false) {
 
       //validation fails, clear the password
       dispatch({
@@ -228,7 +396,6 @@ export const changePassword = (password) => (
     }
   }
 );
-
 
 /**
  * sets an alert according to a message
@@ -263,222 +430,40 @@ export const loginError = (msg) => (
   }
 );
 
-
-
-export const resetPassword = (user) => (
-  (dispatch) => { 
-      
-    if(user.magicLink) {
-
-      //user has already received the magic link and is applying it
-      
-      if(user.email === '' || user.password === '') {
-
-        //incomplete form
-        dispatch({
-          type: LOGIN_MNGMNT.SET_ERROR,
-          errorMessage: 'Please enter your email and your new password to continue.'
-        });
-      } else {
-
-        //complete form, send to LCS to consume
-        fetch(resURLS.lcsConsumeURL, {
-          method: 'POST',
-          mode: 'cors',
-          credentials: 'omit',
-          headers: {
-            'Content-Type' : 'application/json'
-          },
-          body: JSON.stringify({
-            email: user.email,
-            forgot: user.forgottenPassword,
-            password: user.password,
-            link: user.magicLink
-          })
-        }).then(resp => resp.json())
-          .then(resp => {
-
-            if(resp.statusCode === 200) {
-                
-              //notify user and remove link
-              dispatch({
-                type: LOGIN_MNGMNT.SET_ERROR,
-                errorMessage: resp.body + '. \nYou may now login.'
-              });
-              dispatch({
-                type: LOGIN_MNGMNT.SET_MAGIC_LINK, 
-                magicLink: ''
-              });
-              dispatch({
-                type: LOGIN_MNGMNT.HAS_FORGOTTEN_PASSWORD, 
-                forgottenPassword: false
-              });
-            } else {
-  
-                          
-              //notify user and remove link
-              dispatch({
-                type: LOGIN_MNGMNT.SET_ERROR,
-                errorMessage: resp.body
-              });
-              dispatch({
-                type: LOGIN_MNGMNT.SET_MAGIC_LINK, 
-                magicLink: ''
-              });
-              dispatch({
-                type: LOGIN_MNGMNT.HAS_FORGOTTEN_PASSWORD, 
-                forgottenPassword: false
-              });
-            }
-          })
-          .catch(err => {
-
-            //unexpected error
-            //console.log(err);
-            dispatch(showCaughtError(err.toString()));
-          });
-      }
-    } else {
-
-      //user is requesting a magic link because the password was forgotten
-      dispatch({
-        type: LOGIN_MNGMNT.HAS_FORGOTTEN_PASSWORD,
-        forgottenPassword: true
-      });
-        
-      fetch(resURLS.lcsMagicURL,{
-        method: 'POST',
-        mode: 'cors',
-        credentials: 'omit',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: user.email,
-          forgot: user.forgottenPassword
-        })
-      }).then(resp => resp.json())
-        .then(resp => {
-          //notify user
-          
-          let respMes = resp.body || resp.errorMessage;
-          dispatch({
-            type: LOGIN_MNGMNT.SET_ERROR,
-            errorMessage: respMes
-          });
-        })
-        .catch(err => {
-
-          //unexpected error
-          //console.log(err.toString());
-          dispatch(showCaughtError(err.toString()));
-        });
-    }
-  }
-);
-
-export const signUp = (user) => (
+/**
+ * sets an error alert specific for a failed LCS response
+ */
+export const loginResponseError = () => (
   (dispatch) => {
-    
-    if(user.email === '' || user.password === '') {
-      
-      //incomplete form
-      dispatch({
-        type: LOGIN_MNGMNT.SET_ERROR,
-        errorMessage: 'Please fill out email and password to continue.'
-      });
-    } else {
 
-
-      dispatch({
-        type: LOGIN_MNGMNT.SET_ERROR,
-        errorMessage: 'New account info submitted.  Awaiting response...'
-      });
-
-      //complete form, send to LCS to create user
-      fetch(resURLS.lcsCreateURL, {
-        method: 'POST',
-        mode: 'cors',
-        credentials: 'omit',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: user.email,
-          password: user.password
-        })
-      }).then(resp => resp.json())
-        .then(data => {
-          if(data.statusCode === 200) {
-
-            //successful creation
-            dispatch(loginUser({body: data.body}));
-          } else if(data.body === 'Duplicate user!') {
-
-            //duplicate user
-            dispatch({
-              type: LOGIN_MNGMNT.SET_ERROR,
-              errorMessage: 'You are already in the system!  Please try logging in.'
-            });
-          } else {
-
-            //show error
-            dispatch({
-              type: LOGIN_MNGMNT.SET_ERROR,
-              errorMessage: data.body
-            });
-          }
-        })
-        .catch(err => {
-
-          //unexpected error
-          dispatch(showCaughtError(err.toString()));
-        });
-    }
+    dispatch(loginError('invalid LCS response'));
   }
 );
 
 
-export const login = (user) => (
+/**
+ * makes an alert based on the response body of a non-200 response
+ * @param {Object} presumed LCS response
+ */
+export const determineIssue = (resp) => (
   (dispatch) => {
 
-    if(user.email === '' || user.password === '') {
-      
-      //incomplete form
-      dispatch({
-        type: LOGIN_MNGMNT.SET_ERROR,
-        errorMessage: 'Please fill out email and password to continue.'
-      });
+    const issue = resp.body || resp.errMessage;
+
+    const alerts = {
+      'invalid email, hash combo': 'Incorrect email or password.',
+      'Wrong Password': 'Incorrect password.',
+      'Duplicate attempt!': 'You are already in the system- Please retry logging in.',
+      'No email provided!': 'No email provided.',
+      'No password provided': 'No password provided.',
+      'Registration is closed': 'Registration is currently closed.'
+    };
+
+    if(Object.keys(alerts).includes(issue)) {
+      dispatch(loginAlert(alerts[issue]));
     } else {
-
-      dispatch({
-        type: LOGIN_MNGMNT.SET_ERROR,
-        errorMessage: 'Credentials submitted.  Awaiting response...'
-      });
-
-      //complete form, send to LCS to authorize
-      fetch(resURLS.lcsAuthURL, {
-        method: 'POST',
-        mode: 'cors',
-        credentials: 'omit',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: user.email,
-          password: user.password
-        })
-      }).then(resp => resp.json())
-        .then(data => {
-          //post-process
-          dispatch(loginPostFetch(data));
-        })
-        .catch(err => {
-
-          //unexpected error
-          //console.log(err);
-          dispatch(showCaughtError(err.toString()));
-        });
+      
+      dispatch(loginAlert(issue));
     }
   }
 );

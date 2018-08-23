@@ -1,5 +1,5 @@
 /**
- * @file validation responsible for custom validating parameters across whole app
+ * @file Utils responsible for utility functions across whole app
  * @author TresTres
  */
 
@@ -15,7 +15,8 @@ export const hasFields = (obj, fields) => {
   //for-of seems to be most appropriate
   for (var f of fields) {
     
-    if(!obj.hasOwnProperty(f) ||  obj.f === undefined) {
+    if(!obj.hasOwnProperty(f) || obj[f] === undefined) {
+    
       return false;
     }
   }
@@ -36,7 +37,11 @@ export const validateResponse = (data) => {
     return false;
   } else {
 
-    const responseFields = ['status', 'body'];
+    const responseFields = [
+      'url',
+      'ok',
+      'status'
+    ];
 
     if(hasFields(data, responseFields) === false) {
 
@@ -86,4 +91,57 @@ export const validatePassword = (pwd) => {
     return true;
   }
 };
+
+/**
+ * checks if an attempt object is valid
+ * @param {Object} presumed attempt
+ * @returns {Boolean} if the validation was successful
+ */
+export const validateAttempt = (attempt) => {
+
+  if(typeof(attempt) !== 'object') {
+
+    //reject non-object
+    return false;
+  } else {
+        
+    const attemptFields = ['email', 'password', 'forgotPassword', 'magicLink'];
+    if(!hasFields(attempt, attemptFields)) {
+
+      //not a attempt object
+      return false;
+    } else {
+
+      return true;
+    }
+  }
+};
+
+/**
+ * creates options from a specified body for a fetch POST request
+ * @param {Object} body
+ * @returns {Object} options to use
+ */
+export const makePostBody = (body) => {
+
+  if(typeof(body) !== 'object') {
+
+    //invalid type to use
+    return null;
+  } else {
+
+    const respBody = JSON.stringify(body);
+
+    return {
+      method: 'POST',
+      mode: 'cors',
+      credentials: 'omit',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: respBody
+    };
+  }
+};
+
 

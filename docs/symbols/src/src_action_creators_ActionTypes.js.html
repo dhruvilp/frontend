@@ -1,0 +1,52 @@
+<html><head><meta http-equiv="content-type" content="text/html; charset=utf-8"> <style>
+	.KEYW {color: #933;}
+	.COMM {color: #bbb; font-style: italic;}
+	.NUMB {color: #393;}
+	.STRN {color: #393;}
+	.REGX {color: #339;}
+	.line {border-right: 1px dotted #666; color: #666; font-style: normal;}
+	</style></head><body><pre><span class='line'>  1</span> <span class="COMM">//ActionTypes.js</span><span class="WHIT">
+<span class='line'>  2</span> 
+<span class='line'>  3</span> 
+<span class='line'>  4</span> </span><span class="COMM">//ViewController actions</span><span class="WHIT">
+<span class='line'>  5</span> </span><span class="NAME">export</span><span class="WHIT"> </span><span class="KEYW">const</span><span class="WHIT"> </span><span class="NAME">VIEW_CONTROL</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'>  6</span> </span><span class="WHIT">  </span><span class="NAME">SET_LOGIN_STATUS</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_LOGIN_STATUS'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>  7</span> </span><span class="WHIT">  </span><span class="NAME">IS_ADMIN</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'IS_ADMIN'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>  8</span> </span><span class="WHIT">  </span><span class="NAME">APPLY_FORM</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'APPLY_FORM'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'>  9</span> </span><span class="WHIT">  </span><span class="NAME">SET_STATUS</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_STATUS'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 10</span> </span><span class="WHIT">  </span><span class="NAME">RESET_REDUCER</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'RESET_REDUCER'</span><span class="WHIT">
+<span class='line'> 11</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 12</span> 
+<span class='line'> 13</span> 
+<span class='line'> 14</span> 
+<span class='line'> 15</span> </span><span class="COMM">//LoginManager actions</span><span class="WHIT">
+<span class='line'> 16</span> </span><span class="NAME">export</span><span class="WHIT"> </span><span class="KEYW">const</span><span class="WHIT"> </span><span class="NAME">LOGIN_MNGMNT</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 17</span> </span><span class="WHIT">  </span><span class="NAME">CHANGE_EMAIL</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'CHANGE_EMAIL'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 18</span> </span><span class="WHIT">  </span><span class="NAME">CHANGE_PASSWORD</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'CHANGE_PASSWORD'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 19</span> </span><span class="WHIT">  </span><span class="NAME">SET_ALERT</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_ALERT'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 20</span> </span><span class="WHIT">  </span><span class="NAME">SET_MAGIC_LINK</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_MAGIC_LINK'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 21</span> </span><span class="WHIT">  </span><span class="NAME">HAS_FORGOTTEN_PASSWORD</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'HAS_FORGOTTEN_PASSWORD'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 22</span> </span><span class="WHIT">  </span><span class="NAME">RESET_REDUCER</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'RESET_REDUCER'</span><span class="WHIT">
+<span class='line'> 23</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 24</span> 
+<span class='line'> 25</span> </span><span class="COMM">//UserManager actions</span><span class="WHIT">
+<span class='line'> 26</span> </span><span class="NAME">export</span><span class="WHIT"> </span><span class="KEYW">const</span><span class="WHIT"> </span><span class="NAME">USER_DATA</span><span class="WHIT"> </span><span class="PUNC">=</span><span class="WHIT"> </span><span class="PUNC">{</span><span class="WHIT">
+<span class='line'> 27</span> </span><span class="WHIT">  </span><span class="NAME">SET_EMAIL</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_EMAIL'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 28</span> </span><span class="WHIT">  </span><span class="NAME">SET_TOKEN</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_TOKEN'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 29</span> </span><span class="WHIT">  </span><span class="NAME">HAS_RESUME</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'HAS_RESUME'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 30</span> </span><span class="WHIT">  </span><span class="NAME">SET_USER_INFO</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_USER_INFO'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 31</span> </span><span class="WHIT">  </span><span class="NAME">SET_MENTOR_INFO</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_MENTOR_INFO'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="COMM">//NOT IN USE</span><span class="WHIT">
+<span class='line'> 32</span> </span><span class="WHIT">  </span><span class="NAME">SET_MENTOR_TIMES</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_MENTOR_TIMES'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="COMM">//NOT IN USE</span><span class="WHIT">
+<span class='line'> 33</span> </span><span class="WHIT">  </span><span class="NAME">SET_VOLUNTEER_AREA</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_VOLUNTEER_AREA'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="COMM">//NOT IN USE</span><span class="WHIT">
+<span class='line'> 34</span> </span><span class="WHIT">  </span><span class="NAME">SET_VOLUNTEER_TIMES</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_VOLUNTEER_TIMES'</span><span class="PUNC">,</span><span class="WHIT"> </span><span class="COMM">//NOT IN USE</span><span class="WHIT">
+<span class='line'> 35</span> </span><span class="WHIT">  </span><span class="NAME">SET_COC</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_COC'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 36</span> </span><span class="WHIT">  </span><span class="NAME">SET_SHARE</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_SHARE'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 37</span> </span><span class="WHIT">  </span><span class="NAME">SET_TRAVEL_READY</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_TRAVEL_READY'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 38</span> </span><span class="WHIT">  </span><span class="NAME">HAS_UNSAVED_CHANGES</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'HAS_UNSAVED_CHANGES'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 39</span> </span><span class="WHIT">  </span><span class="NAME">SET_QR</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_QR'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 40</span> </span><span class="WHIT">  </span><span class="NAME">SET_FLASH</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_FLASH'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 41</span> </span><span class="WHIT">  </span><span class="NAME">SET_EXTRA_FLASH</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_EXTRA_FLASH'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 42</span> </span><span class="WHIT">  </span><span class="NAME">SET_UPPER_FLASH</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'SET_UPPER_FLASH'</span><span class="PUNC">,</span><span class="WHIT">
+<span class='line'> 43</span> </span><span class="WHIT">  </span><span class="NAME">RESET_REDUCER</span><span class="PUNC">:</span><span class="WHIT"> </span><span class="STRN">'RESET_REDUCER'</span><span class="WHIT">
+<span class='line'> 44</span> </span><span class="PUNC">}</span><span class="PUNC">;</span><span class="WHIT">
+<span class='line'> 45</span> </span></pre></body></html>
