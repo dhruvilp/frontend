@@ -66,7 +66,13 @@ describe('Utils', () => {
     expect(functions.validateResponse(nonResp)).toEqual(false);
 
     //response
-    const resp = new Response();
+    const resp = {
+      body: 'aaa',
+      headers: {
+        'yarr': 'yeet'
+      },
+      statusCode: 200
+    };
 
     expect(functions.validateResponse(resp)).toEqual(true);
   });
@@ -125,7 +131,7 @@ describe('Utils', () => {
     const attempt = {
       email: 'b@b.com',
       password: 'right',
-      forgotPassword: false,
+      forgottenPassword: false,
       magicLink: 'a73ckvyxl'
     };
 

@@ -46,7 +46,7 @@ export const validateResponse = (data) => {
     if(hasFields(data, responseFields) === false) {
 
       //not a response
-      console.log(data);
+      //console.log(data);
       return false;
     } else {
 
