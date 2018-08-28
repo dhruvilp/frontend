@@ -3,7 +3,6 @@ workspace.xml
 .DS_Store
 .idea
 config_resume.js
-s3-deploy.sh
 build/
 .env
 *.swp
