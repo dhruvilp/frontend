@@ -1,12 +1,9 @@
-
-
-
+//resURLS.js
 const testLCS = 'https://7c5l6v7ip3.execute-api.us-west-2.amazonaws.com/lcs-test/';
 const deployLCS = 'https://m7cwj1fy7c.execute-api.us-west-2.amazonaws.com/mlhtest/';
 
 let LCS = deployLCS;
-let test = false;
-if(test) {
+if(process.env.NODE_ENV === 'development') {
   LCS = testLCS;
 }
 
