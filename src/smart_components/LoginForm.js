@@ -9,20 +9,21 @@ import * as loginActions from 'action_creators/LoginActions';
 
 class LoginForm extends React.Component {
 
-  constructor(props) {
+  constructor(props) {  
     super(props);
     this.changeEmail = this.changeEmail.bind(this);
     this.changePassword = this.changePassword.bind(this);
-    this.attemptReset = this.attemptReset.bind(this);
+    this.requestPasswordReset = this.requestPasswordReset.bind(this);
+    this.applyPasswordReset = this.applyPasswordReset.bind(this);
     this.signUp = this.signUp.bind(this);
     this.login = this.login.bind(this);
+    this.resetPasswordButton = this.resetPasswordButton.bind(this);
     //this.onMlhLogin = this.onMlhLogin.bind(this);
   }
 
-
   componentDidMount() {
-    const urlParams = new URLSearchParams(window.location.search);
-    this.props.checkURL(urlParams);
+    let urlParams = new URLSearchParams(window.location.search);
+    this.props.checkMagicLink(urlParams);
   }
 
   changeEmail = (e) => {
@@ -35,24 +36,55 @@ class LoginForm extends React.Component {
     this.props.changePassword(e.target.value);
   }
 
-  attemptReset = (e) => {
+  requestPasswordReset = (e) => {
     e.preventDefault();
-    let user = this.props.loginManager;
-    this.props.resetPassword(user);
+    let attempt = this.props.loginManager;
+    this.props.requestLink(attempt);
+  }
+
+  applyPasswordReset = (e) => {
+    e.preventDefault();
+    let attempt = this.props.loginManager;
+    this.props.consumeLink(attempt);
   }
 
   signUp = (e) => {
     e.preventDefault();
-    let user = this.props.loginManager;
-    this.props.signUp(user);
+    let attempt = this.props.loginManager;
+    this.props.attemptSignUp(attempt);
   }
 
   login = (e) => {
     e.preventDefault();
-    let user = this.props.loginManager;
-    this.props.login(user);
-
+    let attempt = this.props.loginManager;
+    this.props.attemptLogin(attempt);
   }
+
+  resetPasswordButton = () => (
+
+    <div className="col-12">
+      {this.props.loginManager.magicLink ?
+        <button className="btn btn-primary p-xs-2 p-md-3"
+          onClick={this.applyPasswordReset}
+          type="button"
+        >
+          <h6 className="UC">
+            {'Apply Magic Link'}
+          </h6>
+        </button>
+        :
+        <button className="btn btn-primary p-xs-2 p-md-3"
+          onClick={this.requestPasswordReset}
+          type="button"
+        >
+          <h6 className="UC">
+            {'Forgot Password'}
+          </h6>
+        </button>
+      }
+    </div>
+
+  )
   
   /*NOT NEEDED
   onMlhLogin = (e) => {
@@ -97,18 +129,12 @@ class LoginForm extends React.Component {
                 </div>
               </div>
               <div className="row text-center"> {/*ERROR MESSAGE*/}
-                <label className="col-12 col-form-label mb-2 mt-2"><h4 className="text-lg p-xs-2 p-md-3 badge badge-purple">{this.props.loginManager.errorMessage}</h4></label>
-                {this.props.loginManager.errorMessage && 
-                    (!this.props.loginManager.magicLink || this.props.loginManager.forgottenPassword) &&
-                    <div className="col-12">
-                      <button className="btn btn-primary p-xs-2 p-md-3"
-                        onClick={this.attemptReset}
-                        type="button"
-                      >
-                        <h6 className="UC ">{(this.props.loginManager.magicLink) ? 'Apply magic link': 'Forgot Password'}</h6>
-                      </button>
-                    </div>
-                }
+                <label className="col-12 col-form-label mb-2 mt-2">
+                  <h4 className="text-lg p-xs-2 p-md-3 badge badge-purple">
+                    {this.props.loginManager.alertMessage}
+                  </h4>
+                </label>
+                {this.props.loginManager.alertMessage && this.resetPasswordButton()}
               </div>
               <div className="form-group row mt-2">
                 <div className="col-12 text-center">
@@ -147,14 +173,15 @@ LoginForm.propTypes = {
     isLoggedIn: PropTypes.bool,
     forgottenPassword: PropTypes.bool,
     magicLink: PropTypes.string,
-    errorMessage: PropTypes.string
+    alertMessage: PropTypes.string
   }).isRequired,
-  checkURL: PropTypes.func.isRequired,
+  checkMagicLink: PropTypes.func.isRequired,
+  attemptSignUp: PropTypes.func.isRequired,
+  attemptLogin: PropTypes.func.isRequired,
+  consumeLink: PropTypes.func.isRequired,
+  requestLink: PropTypes.func.isRequired,
   changeEmail: PropTypes.func.isRequired,
-  changePassword: PropTypes.func.isRequired,
-  resetPassword: PropTypes.func.isRequired,
-  signUp: PropTypes.func.isRequired,
-  login: PropTypes.func.isRequired
+  changePassword: PropTypes.func.isRequired
   //mlhLogin: PropTypes.func.isRequired not in use
 
 };
@@ -167,12 +194,13 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({
-    checkURL: loginActions.checkURL,
+    checkMagicLink: loginActions.checkMagicLink,
+    attemptSignUp: loginActions.attemptSignUp,
+    attemptLogin: loginActions.attemptLogin,
+    consumeLink: loginActions.consumeLink,
+    requestLink: loginActions.requestLink,
     changeEmail: loginActions.changeEmail,
     changePassword: loginActions.changePassword,
-    resetPassword: loginActions.resetPassword,
-    signUp: loginActions.signUp,
-    login: loginActions.login
     //mlhLogin: loginActions.mlhLogin not in use
   }, dispatch);
 }

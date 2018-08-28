@@ -11,6 +11,35 @@ import resURLS from 'resources/resURLS';
 
 
 /**
+ * checks for a login magic link from the specified URLSearchParams
+ * @param {Object} URLSearchParams object
+ * @returns {Boolean} if a magic link was found
+ */
+export const checkMagicLink = (urlParams) => (
+  (dispatch) => {
+
+    if(PageActions.checkURL(urlParams) === 'valid') {
+      
+      //valid urlParams
+      let check = dispatch(PageActions.confirmLink(urlParams));
+      if(check === 'magic link success') {
+        
+        //notify user
+        const mes = 'You have a magic link to reset your password- please enter your email and new password, then click \'Apply Magic Link\'.';
+        dispatch(loginAlert(mes));
+        return true;
+      }
+      return false;
+    } else {
+      
+      //invalid
+      dispatch(loginError('unreadable URL query'));
+      return false;
+    }
+  }
+);
+
+/**
  * attempts to create a new user in LCS from the one specified in an attempt
  * @param {Object} specified attempt
  * @returns {Boolean} if the creation was successful
@@ -52,7 +81,7 @@ export const attemptSignUp = (attempt) => (
               dispatch(loginResponseError());
               return false;
             }
-            if(resp.ok){
+            if(resp.statusCode === 200){
 
               //successful, proceed to log in
               //save authorization data 
@@ -125,7 +154,7 @@ export const attemptLogin = (attempt) => (
               dispatch(loginResponseError());
               return false;
             }
-            if(resp.ok){
+            if(resp.statusCode === 200){
 
               //successful, save authorization data 
               const data = resp.body;
@@ -197,7 +226,7 @@ export const consumeLink = (attempt) => (
           dispatch(loginResponseError());
           return false;
         }
-        if(resp.ok){
+        if(resp.statusCode === 200){
 
           //successful
           //notify attempt
@@ -275,7 +304,7 @@ export const requestLink = (attempt) => (
           dispatch(loginResponseError());
           return false;
         }
-        if(resp.ok){
+        if(resp.statusCode === 200){
 
           //successsful
           const notif = resp.body;
@@ -305,17 +334,13 @@ export const requestLink = (attempt) => (
 export const loginUser = () => (
   (dispatch) => {
     
-    //set the login status to true
+    //set the login statusCode to true
     dispatch({
       
       type: VIEW_CONTROL.SET_LOGIN_STATUS,
       loggedIn: true
     });
 
-    //clear the reducer 
-    dispatch({
-      type: LOGIN_MNGMNT.RESET_REDUCER
-    });
   } 
 );
 

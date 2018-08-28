@@ -65,7 +65,7 @@ export const logoutUser = (userState) => (
         //save all unsaved changes
         dispatch(save(userState));
         dispatch({
-          type: LOGIN_MNGMNT.SET_ERROR,
+          type: LOGIN_MNGMNT.SET_ALERT,
           errorMessage: 'Changes have been automatically saved.  Please remember to come back and finish registering.' 
         });
         //remove the authdata cookie
@@ -97,7 +97,7 @@ export const logoutUser = (userState) => (
         //save all unsaved changes
         dispatch(save(userState));
         dispatch({
-          type: LOGIN_MNGMNT.SET_ERROR,
+          type: LOGIN_MNGMNT.SET_ALERT,
           errorMessage: 'Changes have been saved.  Please remember to come back and fill out the required fields.' 
         });
         //remove the authdata cookie
@@ -126,7 +126,7 @@ export const logoutUser = (userState) => (
       //save all unsaved changes
       dispatch(save(userState));
       dispatch({
-        type: LOGIN_MNGMNT.SET_ERROR,
+        type: LOGIN_MNGMNT.SET_ALERT,
         errorMessage: 'Changes have been saved. We will contact you if there any updates.'
       });
 

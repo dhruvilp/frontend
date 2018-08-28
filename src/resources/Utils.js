@@ -38,14 +38,15 @@ export const validateResponse = (data) => {
   } else {
 
     const responseFields = [
-      'url',
-      'ok',
-      'status'
+      'body',
+      'headers',
+      'statusCode'
     ];
 
     if(hasFields(data, responseFields) === false) {
 
       //not a response
+      console.log(data);
       return false;
     } else {
 
@@ -105,7 +106,7 @@ export const validateAttempt = (attempt) => {
     return false;
   } else {
         
-    const attemptFields = ['email', 'password', 'forgotPassword', 'magicLink'];
+    const attemptFields = ['email', 'password', 'forgottenPassword', 'magicLink'];
     if(!hasFields(attempt, attemptFields)) {
 
       //not a attempt object
