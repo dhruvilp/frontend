@@ -31,7 +31,7 @@ const ViewController = (state = initialState, action) => {
         ...state,
         userStatus: action.userStatus
       };
-    case VIEW_CONTROL.RESET_REDUCER:
+    case VIEW_CONTROL.RESET_VIEW:
       return initialState;
     default: 
       return state;

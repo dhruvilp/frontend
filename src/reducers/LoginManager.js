@@ -38,7 +38,7 @@ const LoginManager = (state = initialState, action) => {
         ...state, 
         alertMessage: action.alertMessage
       };
-    case LOGIN_MNGMNT.RESET_REDUCER:
+    case LOGIN_MNGMNT.RESET_LOGIN:
       return initialState;
     default: 
       return state;

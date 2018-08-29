@@ -10,6 +10,7 @@ import * as Utils from 'resources/Utils';
 import resURLS from 'resources/resURLS';
 
 
+
 /**
  * checks for a login magic link from the specified URLSearchParams
  * @param {Object} URLSearchParams object
@@ -91,7 +92,7 @@ export const attemptSignUp = (attempt) => (
               dispatch(PageActions.saveCookie(data, 'authdata'));
               
               //log in
-              dispatch(loginUser());
+              dispatch(loginUser(attempt));
 
               return true;
             } else {
@@ -163,7 +164,7 @@ export const attemptLogin = (attempt) => (
               dispatch(PageActions.saveCookie(data, 'authdata'));
               
               //log in
-              dispatch(loginUser());
+              dispatch(loginUser(attempt));
               return true;
             } else {
               
@@ -329,17 +330,26 @@ export const requestLink = (attempt) => (
 );
 
 /**
- * marks a user as logged in
+ * marks a user as logged in and removes magic link from URL
+ * @param {Object} an attempt object which may contain a magic link
  */
-export const loginUser = () => (
+export const loginUser = (attempt) => (
   (dispatch) => {
+
+    if(attempt.magicLink !== '') {
+
+      //remove the magic link by reloading
+      window.location.href = '/dashboard.html';
+    }
     
     //set the login statusCode to true
     dispatch({
-      
       type: VIEW_CONTROL.SET_LOGIN_STATUS,
       loggedIn: true
     });
+
+    //clear the loginManager reducer
+    dispatch({type: LOGIN_MNGMNT.RESET_LOGIN});
 
   } 
 );
@@ -357,10 +367,6 @@ export const logoutUser = () => (
       loggedIn: false
     });
 
-    //clear the reducer?
-    dispatch({
-      type: LOGIN_MNGMNT.RESET_REDUCER
-    });
   }
 );
 

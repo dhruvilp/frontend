@@ -103,7 +103,7 @@ const UserManager = (state = initialState, action) => {
         ...state,
         upperFlash: action.upperFlash
       };
-    case USER_DATA.RESET_REDUCER:
+    case USER_DATA.RESET_USER:
       return initialState;
     default:
       return state;
